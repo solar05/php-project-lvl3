@@ -14,3 +14,7 @@
 $router->get('/', function () use ($router) {
     return view('index');
 });
+
+$router->post('/domains', function () use ($router) {
+    return view('index');
+});

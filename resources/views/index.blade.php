@@ -3,7 +3,7 @@
     <body>
     <nav class="navbar navbar-dark bg-dark">
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-            <a class="navbar-brand" href="#">Navbar</a>
+            <a class="navbar-brand" href="#">Navigation</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -25,6 +25,16 @@
             </div>
         </nav>
     </nav>
-    <h1>hello world</h1>
+    <div class="jumbotron">
+        <h1 class="display-4" align="center">Page Analyzer</h1>
+        <p class="lead" align="center">Web-application to analyze sites for SEO suitability. Please input site URL that you want to analyze.</p>
+        <hr class="my-4">
+        <p class="lead">
+            <form method="post" action="/domains">
+            <input type="text" id="domain" name="domain" class="form-control mb-3" placeholder="Site URL">
+            <button class="btn btn-primary btn-lg btn-block" type="submit" role="button">Analyze</button>
+            </form>
+        </p>
+    </div>
     </body>
 </html>
