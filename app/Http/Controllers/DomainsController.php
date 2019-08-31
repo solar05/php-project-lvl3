@@ -17,7 +17,7 @@ class DomainsController extends Controller
         DB::table('domains')->insert(['name' => $domain, 'created_at' => $currentDate]);
         $insertedDomain = DB::select("SELECT id FROM domains WHERE name = ? and created_at = ?", [$domain,
             $currentDate]);
-        return redirect("/domains/{$insertedDomain[0]->id}");
+        return redirect(route('domain', ['id' => $insertedDomain[0]->id]));
     }
 
     public function showDomain($id)
