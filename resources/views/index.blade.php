@@ -10,7 +10,7 @@
         <hr class="my-4">
         <p class="lead">
             <form method="post" action="/domains">
-            <input type="text" id="domain" name="domain" class="form-control mb-3" placeholder="Site URL">
+            <input type="text" id="domain" name="domain" class="form-control mb-3" placeholder="Site URL" required>
             <button class="btn btn-primary btn-lg btn-block" type="submit" role="button">Analyze</button>
             </form>
         </p>

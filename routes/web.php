@@ -15,6 +15,6 @@ $router->get('/', function () use ($router) {
     return view('index');
 });
 
-$router->post('/domains', function () use ($router) {
-    return view('index');
-});
+$router->post('/domains', 'DomainsController@addDomain');
+
+$router->get('/domains/{id}', 'DomainsController@showDomain');

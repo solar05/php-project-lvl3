@@ -17,7 +17,7 @@ class CreateDomainsTable extends Migration
             $table->bigIncrements('id');
             $table->string('name');
             $table->timestamp('created_at');
-            $table->timestamp('updated_at');
+            $table->timestamp('updated_at')->nullable();
         });
     }
 
