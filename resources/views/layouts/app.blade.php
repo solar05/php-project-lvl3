@@ -16,10 +16,7 @@
                             <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Features</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Pricing</a>
+                            <a class="nav-link" href="/domains">All Domains</a>
                         </li>
                     </ul>
                 </div>
@@ -28,7 +25,7 @@
         @show
             @yield('content')
         @section('table')
-            @isset($domains)
+            @if (isset($domains) and count($domains) > 1)
             <table class="table table-striped">
             <thead>
             <tr>
@@ -41,16 +38,16 @@
             <tbody>
             @foreach ($domains as $domain)
             <tr>
-                {{debug($domain)}}
                 <th>{{ $domain->id }}</th>
-                <td>{{ $domain->name }}</td>
+                <td><a href="{{ route('domain', ['id' => $domain->id]) }}">{{ $domain->name }}</a></td>
                 <td>{{ $domain->created_at }}</td>
                 <td>{{ $domain->updated_at }}</td>
             </tr>
             @endforeach
             </tbody>
         </table>
-        @endisset
+            {!! $domains->render() !!}
+            @endif
         @show
     </body>
 </html>

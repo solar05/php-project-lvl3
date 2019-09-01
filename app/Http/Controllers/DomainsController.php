@@ -25,4 +25,10 @@ class DomainsController extends Controller
         $requestedDomain = DB::select("SELECT * FROM domains WHERE id = ?", [$id]);
         return view('domain', ['domains' => $requestedDomain]);
     }
+
+    public function showAll()
+    {
+        $allDomains = DB::table('domains')->paginate(5);
+        return view('domains', ['domains' => $allDomains]);
+    }
 }

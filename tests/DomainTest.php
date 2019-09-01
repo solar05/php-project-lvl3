@@ -20,4 +20,10 @@ class DomainTest extends TestCase
         $response->assertResponseStatus(302);
         $this->seeInDatabase('domains', ['name' => 'https://www.example.com']);
     }
+
+    public function testShowDomains()
+    {
+        $response = $this->get('domains');
+        $response->assertResponseStatus(200);
+    }
 }

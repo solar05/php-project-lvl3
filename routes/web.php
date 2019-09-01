@@ -17,4 +17,6 @@ $router->get('/', ['as' => 'home',function () use ($router) {
 
 $router->post('/domains', ['as' => 'domains', 'uses' => 'DomainsController@addDomain']);
 
+$router->get('/domains', ['as' => 'domains', 'uses' => 'DomainsController@showAll']);
+
 $router->get('/domains/{id}', ['as' => 'domain', 'uses' => 'DomainsController@showDomain']);
