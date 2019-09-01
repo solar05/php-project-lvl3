@@ -34,6 +34,9 @@
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ],
+        "post-install-cmd": [
+            "php artisan migrate --force"
+        ],
         "phpcs": "phpcs",
     	"phpunit": "phpunit",
     	"test": "phpunit tests"
