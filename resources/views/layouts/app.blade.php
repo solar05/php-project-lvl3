@@ -25,7 +25,7 @@
         @show
             @yield('content')
         @section('table')
-            @if (isset($domains) and count($domains) > 1)
+            @if (isset($domains))
             <table class="table table-striped">
             <thead>
             <tr>
@@ -33,6 +33,8 @@
                 <th scope="col">URL</th>
                 <th scope="col">Created at</th>
                 <th scope="col">Updated at</th>
+                <th scope="col">Analysis status</th>
+                <th scope="col">Status code</th>
             </tr>
             </thead>
             <tbody>
@@ -42,11 +44,15 @@
                 <td><a href="{{ route('domain', ['id' => $domain->id]) }}">{{ $domain->name }}</a></td>
                 <td>{{ $domain->created_at }}</td>
                 <td>{{ $domain->updated_at }}</td>
+                <td>{{ $domain->state }}</td>
+                <td>{{ $domain->status }}</td>
             </tr>
             @endforeach
             </tbody>
         </table>
+            @if(count($domains) > 1)
             {!! $domains->render() !!}
+            @endif
             @endif
         @show
     </body>
