@@ -16,6 +16,7 @@
         </thead>
         <tbody>
         <tr>
+            <td>{{ $domains->id }}</td>
             <td>{{ $domains->name }}</td>
             <td>{{ $domains->created_at }}</td>
             <td>{{ $domains->updated_at }}</td>
