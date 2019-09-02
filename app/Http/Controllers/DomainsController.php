@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Jobs\AnaliseJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Queue;
 
 
 class DomainsController extends Controller
@@ -18,7 +19,7 @@ class DomainsController extends Controller
         $currentDate = date('Y-m-d H:i:s');
         DB::table('domains')->insert(['name' => $domain, 'created_at' => $currentDate, 'state' => env('STATE_INIT')]);
         $insertedDomain = DB::select("SELECT id FROM domains where id = last_insert_rowid()");
-        dispatch(new AnaliseJob(['id' => $insertedDomain[0]->id, 'domain' => $domain]));
+        Queue::push(new AnaliseJob(['id' => $insertedDomain[0]->id, 'domain' => $domain]));
         return redirect(route('domain', ['id' => $insertedDomain[0]->id]));
     }
 
