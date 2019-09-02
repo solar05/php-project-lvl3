@@ -13,20 +13,20 @@ class DomainsController extends Controller
     public function addDomain(Request $request)
     {
         $this->validate($request, [
-            'domain' => 'url|required'
+            'domain' => 'url|required|max:255'
         ]);
         $domain = $request->get('domain');
         $currentDate = date('Y-m-d H:i:s');
         DB::table('domains')->insert(['name' => $domain, 'created_at' => $currentDate, 'state' => env('STATE_INIT')]);
-        $insertedDomain = DB::select("SELECT id FROM domains where id = last_insert_rowid()");
-        Queue::push(new AnaliseJob(['id' => $insertedDomain[0]->id, 'domain' => $domain]));
-        return redirect(route('domain', ['id' => $insertedDomain[0]->id]));
+        $insertedDomain = DB::select("SELECT id FROM domains where id = last_insert_rowid()")[0];
+        Queue::push(new AnaliseJob(['id' => $insertedDomain->id, 'domain' => $domain]));
+        return redirect(route('domain', ['id' => $insertedDomain->id]));
     }
 
     public function showDomain($id)
     {
         $requestedDomain = DB::select("SELECT * FROM domains WHERE id = ?", [$id]);
-        return view('domain', ['domains' => $requestedDomain]);
+        return view('domain', ['domains' => $requestedDomain[0]]);
     }
 
     public function showAll()

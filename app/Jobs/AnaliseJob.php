@@ -2,14 +2,15 @@
 
 namespace App\Jobs;
 
-use GuzzleHttp\Client;
 use \GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\DB;
+use DiDom\Document;
+use Illuminate\Support\Facades\App;
 
 class AnaliseJob extends Job
 {
     public $tries = 5;
-    private $domain;
+    protected $domain;
 
 
     /**
@@ -29,7 +30,7 @@ class AnaliseJob extends Job
      */
     public function handle()
     {
-        $client = new Client();
+        $client = App::make('GuzzleHttp\Client');
         $request = new Request('GET', "{$this->domain['domain']}");
         $id = $this->domain['id'];
         $currentDate = date('Y-m-d H:i:s');
@@ -38,14 +39,40 @@ class AnaliseJob extends Job
         try {
             $promise = $client->sendAsync($request)->then(function ($response) use ($id) {
                 $currentDate = date('Y-m-d H:i:s');
-                DB::insert("UPDATE domains set state = ?, status = ?, updated_at = ? WHERE id = {$id}", [
-                    env('STATE_COMPLETED'), $response->getStatusCode(), $currentDate]);
+                $pageData = array('domain_id' => $id);
+                $code =  $response->getStatusCode();
+                $pageData['code'] = $code;
+                $contentLength = ($response->getHeader('Content-Length')) ?
+                    implode('', $response->getHeader('Content-Length')) :
+                    strlen($response->getBody());
+                $pageData['content_length'] = $contentLength;
+                $body = $response->getBody()->getContents();
+                $pageData['body'] = $body;
+                $document = new Document($body);
+                $header = $document->find('h1');
+                $pageData['header'] = count($header) > 0 ? $header[0]->text() : null;
+                $keywords = $document->find('meta[name=keywords]');
+                $pageData['keywords'] = count($keywords) ? $keywords[0]->attr('content') : null;
+                $description = $document->find('meta[name=description]');
+                $pageData['description'] = count($description) > 0 ? $description[0]->attr('content') : null;
+                $pageData['content'] = "{$pageData['keywords']} {$pageData['description']}";
+                DB::insert("UPDATE domains set state = ?, status = ?, updated_at = ?, content_length = ?,
+                    body = ?, header = ?, content = ? WHERE id = ?", [
+                    env('STATE_COMPLETED'),
+                    $pageData['code'],
+                    $currentDate,
+                    $pageData['content_length'],
+                    $pageData['body'],
+                    $pageData['content'],
+                    $pageData['header'],
+                    $pageData['domain_id']]);
             });
             $promise->wait();
         } catch (\Exception $error) {
+            info($error);
             $currentDate = date('Y-m-d H:i:s');
-            DB::insert("UPDATE domains set state = ?, updated_at = ? WHERE id = {$id}", [env('STATE_FAILED'),
-                $currentDate]);
+            DB::insert("UPDATE domains set state = ?, updated_at = ? WHERE id = ?", [env('STATE_FAILED'),
+                $currentDate, $id]);
         }
     }
 }

@@ -1,9 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Page Analyzer')
-@section('navbar')
-    @parent
-    @section('table')
-    @stop
+@section('content')
     <table class="table table-striped">
         <thead>
         <tr>
@@ -13,19 +9,22 @@
             <th scope="col">Updated at</th>
             <th scope="col">Analysis status</th>
             <th scope="col">Status code</th>
+            <th scope="col">Content length</th>
+            <th scope="col">Header</th>
+            <th scope="col">Content</th>
         </tr>
         </thead>
         <tbody>
         <tr>
-            <th>{{ $domains[0]->id }}</th>
-            <td>{{ $domains[0]->name }}</td>
-            <td>{{ $domains[0]->created_at }}</td>
-            <td>{{ $domains[0]->updated_at }}</td>
-            <td>{{ $domains[0]->state }}</td>
-            <td>{{ $domains[0]->status }}</td>
+            <td>{{ $domains->name }}</td>
+            <td>{{ $domains->created_at }}</td>
+            <td>{{ $domains->updated_at }}</td>
+            <td>{{ $domains->state }}</td>
+            <td>{{ $domains->status }}</td>
+            <td>{{ $domains->content_length }}</td>
+            <td>{{ $domains->header }}</td>
+            <td>{{ $domains->content }}</td>
         </tr>
         </tbody>
     </table>
 @endsection
-
-
