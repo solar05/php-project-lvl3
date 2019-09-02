@@ -36,7 +36,7 @@ class AnaliseJob extends Job
         $currentDate = date('Y-m-d H:i:s');
         DB::insert("UPDATE domains set state = ?, updated_at = ? WHERE id = {$id}", [env('STATE_PENDING'),
             $currentDate]);
-        try {
+/*        try {*/
             $promise = $client->sendAsync($request)->then(function ($response) use ($id) {
                 $currentDate = date('Y-m-d H:i:s');
                 $pageData = array('domain_id' => $id);
@@ -46,7 +46,7 @@ class AnaliseJob extends Job
                     implode('', $response->getHeader('Content-Length')) :
                     strlen($response->getBody());
                 $pageData['content_length'] = $contentLength;
-                $body = $response->getBody()->getContents();
+                $body = $response->getBody()->__toString();
                 $pageData['body'] = $body;
                 $document = new Document($body);
                 $header = $document->find('h1');
@@ -68,11 +68,11 @@ class AnaliseJob extends Job
                     $pageData['domain_id']]);
             });
             $promise->wait();
-        } catch (\Exception $error) {
+        /*} catch (\Exception $error) {
             info($error);
             $currentDate = date('Y-m-d H:i:s');
             DB::insert("UPDATE domains set state = ?, updated_at = ? WHERE id = ?", [env('STATE_FAILED'),
                 $currentDate, $id]);
-        }
+        }*/
     }
 }
