@@ -56,7 +56,13 @@ $app->bind('GuzzleHttp\Client', function () {
     return new \GuzzleHttp\Client();
 });
 
+$app->bind('GuzzleHttp\Psr7\Request', function ($app, $parameters) {
+    return new \GuzzleHttp\Psr7\Request($parameters['method'], $parameters['URL']);
+});
 
+$app->bind('DiDom\Document', function ($app, $parameters) {
+    return new \DiDom\Document($parameters['document']);
+});
 
 /*
 |--------------------------------------------------------------------------

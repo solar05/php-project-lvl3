@@ -2,9 +2,7 @@
 
 namespace App\Jobs;
 
-use \GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\DB;
-use DiDom\Document;
 use Illuminate\Support\Facades\App;
 
 class AnaliseJob extends Job
@@ -31,12 +29,12 @@ class AnaliseJob extends Job
     public function handle()
     {
         $client = App::make('GuzzleHttp\Client');
-        $request = new Request('GET', "{$this->domain['domain']}");
+        $request = App::makeWith('GuzzleHttp\Psr7\Request', ['method' => 'GET', 'URL' => "{$this->domain['domain']}"]);
         $id = $this->domain['id'];
         $currentDate = date('Y-m-d H:i:s');
         DB::insert("UPDATE domains set state = ?, updated_at = ? WHERE id = {$id}", [env('STATE_PENDING'),
             $currentDate]);
-/*        try {*/
+        try {
             $promise = $client->sendAsync($request)->then(function ($response) use ($id) {
                 $currentDate = date('Y-m-d H:i:s');
                 $pageData = array('domain_id' => $id);
@@ -48,7 +46,7 @@ class AnaliseJob extends Job
                 $pageData['content_length'] = $contentLength;
                 $body = $response->getBody()->__toString();
                 $pageData['body'] = $body;
-                $document = new Document($body);
+                $document = App::makeWith('DiDom\Document', ['document' => $body]);
                 $header = $document->find('h1');
                 $pageData['header'] = count($header) > 0 ? $header[0]->text() : null;
                 $keywords = $document->find('meta[name=keywords]');
@@ -68,11 +66,11 @@ class AnaliseJob extends Job
                     $pageData['domain_id']]);
             });
             $promise->wait();
-        /*} catch (\Exception $error) {
+        } catch (\Exception $error) {
             info($error);
             $currentDate = date('Y-m-d H:i:s');
             DB::insert("UPDATE domains set state = ?, updated_at = ? WHERE id = ?", [env('STATE_FAILED'),
                 $currentDate, $id]);
-        }*/
+        }
     }
 }
