@@ -9,5 +9,12 @@
             <input type="text" id="domain" name="domain" class="form-control mb-3" placeholder="Site URL" required>
             <button class="btn btn-primary btn-lg btn-block" type="submit" role="button">Analyze</button>
             </form>
+        @isset($errors)
+            @foreach($errors as $error)
+                <div class="alert alert-danger" role="alert">{{ $error }}</div>
+            @endforeach
+        @endisset
     </div>
 @endsection
+
+

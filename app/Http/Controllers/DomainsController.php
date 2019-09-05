@@ -6,15 +6,20 @@ use App\Jobs\AnaliseJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
+use Validator;
 
 
 class DomainsController extends Controller
 {
     public function addDomain(Request $request)
     {
-        $this->validate($request, [
-            'domain' => 'url|required|max:255'
-        ]);
+        $validator = Validator::make($request->all(), [
+                'domain' => 'url|required|max:255'
+            ]);
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return view('index', ['errors' => $errors]);
+        }
         $domain = $request->get('domain');
         $currentDate = date('Y-m-d H:i:s');
         DB::table('domains')->insert(['name' => $domain, 'created_at' => $currentDate, 'state' => env('STATE_INIT')]);
@@ -31,7 +36,7 @@ class DomainsController extends Controller
 
     public function showAll()
     {
-        $allDomains = DB::table('domains')->paginate(5);
+        $allDomains = DB::table('domains')->paginate(10);
         return view('domains', ['domains' => $allDomains]);
     }
 }
