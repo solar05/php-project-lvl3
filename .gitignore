@@ -4,5 +4,6 @@ Homestead.json
 Homestead.yaml
 .env
 *.DS_Store
+.DS_Store
 /database/database.sqlite
 git
