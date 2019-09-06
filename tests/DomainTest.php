@@ -19,6 +19,8 @@ class DomainTest extends TestCase
         $response = $this->post(route('domains'), ['domain' => 'https://www.example.com']);
         $response->assertResponseStatus(302);
         $this->seeInDatabase('domains', ['name' => 'https://www.example.com']);
+        $response = $this->get('domains/1');
+        $response->assertResponseStatus(200);
     }
 
     public function testShowDomains()
