@@ -73,8 +73,10 @@ class AnaliseJob extends Job
             info($error);
             $currentDate = date('Y-m-d H:i:s');
             $this->domain->failed();
-            DB::insert("UPDATE domains set state = ?, updated_at = ? WHERE id = ?", [$this->domain->getCurrentState(),
-                $currentDate, $id]);
+            DB::insert(
+                "UPDATE domains set state = '{$this->domain->getCurrentState()}', updated_at = ? WHERE id = ?",
+                [$currentDate, $id]
+            );
         }
     }
 }
