@@ -36,12 +36,13 @@ class AnaliseJob extends Job
         try {
             $this->domain->pending();
             DB::insert(
-                "UPDATE domains set state = ?, updated_at = ? WHERE id = ?",
-                [$this->domain->getCurrentState(), $currentDate, $id]
+                "UPDATE domains set state = '{$this->domain->getCurrentState()}',
+                updated_at = '{$currentDate}' WHERE id = ?",
+                [$id]
             );
             $promise = $client->sendAsync($request)->then(function ($response) use ($id) {
                 $currentDate = date('Y-m-d H:i:s');
-                $pageData = array('domain_id' => $this->domain->getId());
+                $pageData = array('domain_id' => $id);
                 $code =  $response->getStatusCode();
                 $pageData['code'] = $code;
                 $contentLength = ($response->getHeader('Content-Length')) ?
@@ -59,15 +60,12 @@ class AnaliseJob extends Job
                 $pageData['description'] = count($description) > 0 ? $description[0]->attr('content') : null;
                 $pageData['content'] = "{$pageData['keywords']} {$pageData['description']}";
                 $this->domain->completed();
-                DB::insert("UPDATE domains set state = ?, status = ?, updated_at = ?, content_length = ?,
-                    body = ?, header = ?, content = ? WHERE id = ?", [
-                    $this->domain->getCurrentState(),
+                DB::insert("UPDATE domains set state = '{$this->domain->getCurrentState()}', status = ?, updated_at = ?,
+                    content_length = ?, header = '{$pageData['header']}',
+                    content = '{$pageData['header']}' WHERE id = ?", [
                     $pageData['code'],
                     $currentDate,
                     $pageData['content_length'],
-                    $pageData['body'],
-                    $pageData['content'],
-                    $pageData['header'],
                     $pageData['domain_id']]);
             });
             $promise->wait();
