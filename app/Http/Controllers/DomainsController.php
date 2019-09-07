@@ -6,6 +6,7 @@ use App\Jobs\AnaliseJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
+use App\Domain;
 use Validator;
 
 
@@ -20,12 +21,16 @@ class DomainsController extends Controller
             $errors = $validator->errors()->all();
             return view('index', ['errors' => $errors]);
         }
-        $domain = $request->get('domain');
+        $domain = new Domain($request->get('domain'));
         $currentDate = date('Y-m-d H:i:s');
-        DB::table('domains')->insert(['name' => $domain, 'created_at' => $currentDate, 'state' => env('STATE_INIT')]);
+        DB::table('domains')->insert([
+            'name' => $domain->getUrl(),
+            'created_at' => $currentDate,
+            'state' => $domain->getCurrentState()]);
         $insertedDomain = DB::select("SELECT id FROM domains where id = last_insert_rowid()")[0];
-        Queue::push(new AnaliseJob(['id' => $insertedDomain->id, 'domain' => $domain]));
-        return redirect(route('domain', ['id' => $insertedDomain->id]));
+        $domain->setId($insertedDomain->id);
+        Queue::push(new AnaliseJob($domain));
+        return redirect(route('domain', ['id' => $domain->getId()]));
     }
 
     public function showDomain($id)

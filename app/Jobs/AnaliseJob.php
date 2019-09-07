@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\App;
+use App\Domain;
 
 class AnaliseJob extends Job
 {
@@ -16,7 +17,7 @@ class AnaliseJob extends Job
      *
      * @return void
      */
-    public function __construct($domain)
+    public function __construct(Domain $domain)
     {
         $this->domain = $domain;
     }
@@ -29,15 +30,18 @@ class AnaliseJob extends Job
     public function handle()
     {
         $client = App::make('GuzzleHttp\Client');
-        $request = App::makeWith('GuzzleHttp\Psr7\Request', ['method' => 'GET', 'URL' => "{$this->domain['domain']}"]);
-        $id = $this->domain['id'];
+        $request = App::makeWith('GuzzleHttp\Psr7\Request', ['method' => 'GET', 'URL' => "{$this->domain->getUrl()}"]);
+        $id = $this->domain->getId();
         $currentDate = date('Y-m-d H:i:s');
-        DB::insert("UPDATE domains set state = ?, updated_at = ? WHERE id = {$id}", [env('STATE_PENDING'),
-            $currentDate]);
+        $this->domain->pending();
+        DB::insert(
+            "UPDATE domains set state = ?, updated_at = ? WHERE id = ?",
+            [$this->domain->getCurrentState(), $currentDate, $id]
+        );
         try {
             $promise = $client->sendAsync($request)->then(function ($response) use ($id) {
                 $currentDate = date('Y-m-d H:i:s');
-                $pageData = array('domain_id' => $id);
+                $pageData = array('domain_id' => $this->domain->getId());
                 $code =  $response->getStatusCode();
                 $pageData['code'] = $code;
                 $contentLength = ($response->getHeader('Content-Length')) ?
@@ -54,9 +58,10 @@ class AnaliseJob extends Job
                 $description = $document->find('meta[name=description]');
                 $pageData['description'] = count($description) > 0 ? $description[0]->attr('content') : null;
                 $pageData['content'] = "{$pageData['keywords']} {$pageData['description']}";
+                $this->domain->completed();
                 DB::insert("UPDATE domains set state = ?, status = ?, updated_at = ?, content_length = ?,
                     body = ?, header = ?, content = ? WHERE id = ?", [
-                    env('STATE_COMPLETED'),
+                    $this->domain->getCurrentState(),
                     $pageData['code'],
                     $currentDate,
                     $pageData['content_length'],
@@ -69,7 +74,8 @@ class AnaliseJob extends Job
         } catch (\Exception $error) {
             info($error);
             $currentDate = date('Y-m-d H:i:s');
-            DB::insert("UPDATE domains set state = ?, updated_at = ? WHERE id = ?", [env('STATE_FAILED'),
+            $this->domain->failed();
+            DB::insert("UPDATE domains set state = ?, updated_at = ? WHERE id = ?", [$this->domain->getCurrentState(),
                 $currentDate, $id]);
         }
     }
