@@ -27,7 +27,7 @@ class DomainsController extends Controller
             'name' => $domain->getUrl(),
             'created_at' => $currentDate,
             'state' => $domain->getCurrentState()]);
-        $insertedDomain = DB::select("SELECT id FROM domains where id = last_insert_rowid()")[0];
+        $insertedDomain = DB::select("SELECT id FROM domains where created_at = ?", [$currentDate])[0];
         $domain->setId($insertedDomain->id);
         Queue::push(new AnaliseJob($domain));
         return redirect(route('domain', ['id' => $domain->getId()]));
