@@ -62,7 +62,7 @@ class AnaliseJob extends Job
                 $this->domain->completed();
                 DB::insert("UPDATE domains set state = '{$this->domain->getCurrentState()}', status = ?, updated_at = ?,
                     content_length = ?, header = '{$pageData['header']}',
-                    content = '{$pageData['header']}' WHERE id = ?", [
+                    content = '{$pageData['content']}' WHERE id = ?", [
                     $pageData['code'],
                     $currentDate,
                     $pageData['content_length'],
