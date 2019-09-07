@@ -33,12 +33,12 @@ class AnaliseJob extends Job
         $request = App::makeWith('GuzzleHttp\Psr7\Request', ['method' => 'GET', 'URL' => "{$this->domain->getUrl()}"]);
         $id = $this->domain->getId();
         $currentDate = date('Y-m-d H:i:s');
-        $this->domain->pending();
-        DB::insert(
-            "UPDATE domains set state = ?, updated_at = ? WHERE id = ?",
-            [$this->domain->getCurrentState(), $currentDate, $id]
-        );
         try {
+            $this->domain->pending();
+            DB::insert(
+                "UPDATE domains set state = ?, updated_at = ? WHERE id = ?",
+                [$this->domain->getCurrentState(), $currentDate, $id]
+            );
             $promise = $client->sendAsync($request)->then(function ($response) use ($id) {
                 $currentDate = date('Y-m-d H:i:s');
                 $pageData = array('domain_id' => $this->domain->getId());
