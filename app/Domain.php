@@ -3,44 +3,25 @@
 
 namespace App;
 
-const STATE_INIT = 'initialized';
+use Illuminate\Database\Eloquent\Model;
+
 const STATE_PENDING = 'pending';
 const STATE_FAILED = 'failed';
 const STATE_COMPLETED = 'completed';
 
 
-class Domain
+class Domain extends Model
 {
-    protected $domainUrl;
-    protected $state;
-    protected $id;
 
-    public function __construct($domainUrl)
-    {
-        $this->domainUrl = $domainUrl;
-        $this->state = STATE_INIT;
-    }
-
-    public function getUrl()
-    {
-        return $this->domainUrl;
-    }
-
-    public function getCurrentState()
-    {
-        return $this->state;
-    }
-
-    public function setId($id)
-    {
-        $this->id = $id;
-    }
-
-    public function getId()
-    {
-        return $this->id;
-    }
-
+    protected $fillable = [
+        'name',
+        'state',
+        'status',
+        'content_length',
+        'body',
+        'header',
+        'content'
+    ];
 
     public function pending()
     {

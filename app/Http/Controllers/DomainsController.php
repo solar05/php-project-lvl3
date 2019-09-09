@@ -21,27 +21,20 @@ class DomainsController extends Controller
             $errors = $validator->errors()->all();
             return view('index', ['errors' => $errors]);
         }
-        $domain = new Domain($request->get('domain'));
-        $currentDate = date('Y-m-d H:i:s');
-        DB::table('domains')->insert([
-            'name' => $domain->getUrl(),
-            'created_at' => $currentDate,
-            'state' => $domain->getCurrentState()]);
-        $insertedDomain = DB::select("SELECT id FROM domains where created_at = ?", [$currentDate])[0];
-        $domain->setId($insertedDomain->id);
+        $domain = Domain::create(['name' => $request->get('domain'), 'state' => 'initialized' ]);
         Queue::push(new AnaliseJob($domain));
-        return redirect(route('domain', ['id' => $domain->getId()]));
+        return redirect(route('domain', ['id' => $domain->id]));
     }
 
     public function showDomain($id)
     {
-        $requestedDomain = DB::select("SELECT * FROM domains WHERE id = ?", [$id]);
-        return view('domain', ['domains' => $requestedDomain[0]]);
+        $requestedDomain = Domain::find($id);
+        return view('domain', ['domains' => $requestedDomain]);
     }
 
     public function showAll()
     {
-        $allDomains = DB::table('domains')->paginate(10);
+        $allDomains = Domain::paginate(10);
         return view('domains', ['domains' => $allDomains]);
     }
 }

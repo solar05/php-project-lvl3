@@ -30,53 +30,33 @@ class AnaliseJob extends Job
     public function handle()
     {
         $client = App::make('GuzzleHttp\Client');
-        $request = App::makeWith('GuzzleHttp\Psr7\Request', ['method' => 'GET', 'URL' => "{$this->domain->getUrl()}"]);
-        $id = $this->domain->getId();
-        $currentDate = date('Y-m-d H:i:s');
+        $request = App::makeWith('GuzzleHttp\Psr7\Request', ['method' => 'GET', 'URL' => $this->domain->name]);
+        $id = $this->domain->id;
         try {
             $this->domain->pending();
-            DB::insert(
-                "UPDATE domains set state = '{$this->domain->getCurrentState()}',
-                updated_at = '{$currentDate}' WHERE id = ?",
-                [$id]
-            );
+            $this->domain->save();
             $promise = $client->sendAsync($request)->then(function ($response) use ($id) {
-                $currentDate = date('Y-m-d H:i:s');
-                $pageData = array('domain_id' => $id);
-                $code =  $response->getStatusCode();
-                $pageData['code'] = $code;
-                $contentLength = ($response->getHeader('Content-Length')) ?
+                $this->domain->status =  $response->getStatusCode();
+                $this->domain->content_length = ($response->getHeader('Content-Length')) ?
                     implode('', $response->getHeader('Content-Length')) :
                     strlen($response->getBody());
-                $pageData['content_length'] = $contentLength;
-                $body = $response->getBody()->__toString();
-                $pageData['body'] = $body;
-                $document = App::makeWith('DiDom\Document', ['document' => $body]);
+                $this->domain->body = $response->getBody()->__toString();
+                $document = App::makeWith('DiDom\Document', ['document' => $this->domain->body]);
                 $header = $document->find('h1');
-                $pageData['header'] = count($header) > 0 ? $header[0]->text() : null;
+                $this->domain->header = count($header) > 0 ? $header[0]->text() : null;
                 $keywords = $document->find('meta[name=keywords]');
-                $pageData['keywords'] = count($keywords) ? $keywords[0]->attr('content') : null;
+                $proceededKeywords = count($keywords) ? $keywords[0]->attr('content') : null;
                 $description = $document->find('meta[name=description]');
-                $pageData['description'] = count($description) > 0 ? $description[0]->attr('content') : null;
-                $pageData['content'] = "{$pageData['keywords']} {$pageData['description']}";
+                $proceededDescription = count($description) > 0 ? $description[0]->attr('content') : null;
+                $this->domain->content = "{$proceededKeywords}{$proceededDescription}";
                 $this->domain->completed();
-                DB::insert("UPDATE domains set state = '{$this->domain->getCurrentState()}', status = ?, updated_at = ?,
-                    content_length = ?, header = '{$pageData['header']}',
-                    content = '{$pageData['content']}' WHERE id = ?", [
-                    $pageData['code'],
-                    $currentDate,
-                    $pageData['content_length'],
-                    $pageData['domain_id']]);
+                $this->domain->save();
             });
             $promise->wait();
         } catch (\Exception $error) {
             info($error);
-            $currentDate = date('Y-m-d H:i:s');
             $this->domain->failed();
-            DB::insert(
-                "UPDATE domains set state = '{$this->domain->getCurrentState()}', updated_at = ? WHERE id = ?",
-                [$currentDate, $id]
-            );
+            $this->domain->save();
         }
     }
 }
