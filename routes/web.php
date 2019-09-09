@@ -15,8 +15,8 @@ $router->get('/', ['as' => 'home',function () use ($router) {
     return view('index');
 }]);
 
-$router->post('/domains', ['as' => 'domains', 'uses' => 'DomainsController@addDomain']);
+$router->post('/domains', ['as' => 'domains.store', 'uses' => 'DomainsController@store']);
 
-$router->get('/domains', ['as' => 'domains', 'uses' => 'DomainsController@showAll']);
+$router->get('/domains', ['as' => 'domains.index', 'uses' => 'DomainsController@index']);
 
-$router->get('/domains/{id}', ['as' => 'domain', 'uses' => 'DomainsController@showDomain']);
+$router->get('/domains/{id}', ['as' => 'domains.show', 'uses' => 'DomainsController@show']);

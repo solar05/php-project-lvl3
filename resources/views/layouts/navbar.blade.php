@@ -9,7 +9,7 @@
                     <a class="nav-link" href="{{ route('home') }}">Home <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('domains') }}">All Domains</a>
+                    <a class="nav-link" href="{{ route('domains.index') }}">All Domains</a>
                 </li>
             </ul>
         </div>

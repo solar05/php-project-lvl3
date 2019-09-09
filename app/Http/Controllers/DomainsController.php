@@ -12,7 +12,7 @@ use Validator;
 
 class DomainsController extends Controller
 {
-    public function addDomain(Request $request)
+    public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
                 'domain' => 'url|required|max:255'
@@ -23,16 +23,16 @@ class DomainsController extends Controller
         }
         $domain = Domain::create(['name' => $request->get('domain'), 'state' => 'initialized' ]);
         Queue::push(new AnaliseJob($domain));
-        return redirect(route('domain', ['id' => $domain->id]));
+        return redirect(route('domains.show', ['id' => $domain->id]));
     }
 
-    public function showDomain($id)
+    public function show($id)
     {
         $requestedDomain = Domain::find($id);
         return view('domain', ['domains' => $requestedDomain]);
     }
 
-    public function showAll()
+    public function index()
     {
         $allDomains = Domain::paginate(10);
         return view('domains', ['domains' => $allDomains]);

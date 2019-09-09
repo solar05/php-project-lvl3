@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\App;
 use App\Domain;
 

@@ -16,16 +16,16 @@ class DomainTest extends TestCase
 
     public function testDomainAdding()
     {
-        $response = $this->post(route('domains'), ['domain' => 'https://www.example.com']);
+        $response = $this->post(route('domains.store'), ['domain' => 'https://www.example.com']);
         $response->assertResponseStatus(302);
         $this->seeInDatabase('domains', ['name' => 'https://www.example.com']);
-        $response = $this->get(route('domain', ['id' => 1]));
+        $response = $this->get(route('domains.show', ['id' => 1]));
         $response->assertResponseStatus(200);
     }
 
     public function testShowDomains()
     {
-        $response = $this->get('domains');
+        $response = $this->get(route('domains.index'));
         $response->assertResponseStatus(200);
     }
 }
