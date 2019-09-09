@@ -40,7 +40,7 @@ class AnaliseJob extends Job
                 $this->domain->content_length = ($response->getHeader('Content-Length')) ?
                     implode('', $response->getHeader('Content-Length')) :
                     strlen($response->getBody());
-                $document = App::makeWith('DiDom\Document', ['document' => $response->getBody()]);
+                $document = App::makeWith('DiDom\Document', ['document' => $response->getBody()->__ToString()]);
                 $header = $document->first('h1');
                 $this->domain->header = !empty($header) ? $header->text() : 'Not provided';
                 $keywords = $document->find('meta[name=keywords]');
