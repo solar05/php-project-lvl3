@@ -1,20 +1,12 @@
 <?php
 
-
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-const STATE_PENDING = 'pending';
-const STATE_FAILED = 'failed';
-const STATE_COMPLETED = 'completed';
-
-
 class Domain extends Model
 {
-
     protected $state = 'initialized';
-
     protected $fillable = [
         'name',
         'status',

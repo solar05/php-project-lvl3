@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Queue;
 use App\Domain;
 use Validator;
 
-
 class DomainsController extends Controller
 {
     public function store(Request $request)
