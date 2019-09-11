@@ -24,7 +24,7 @@ class DomainTest extends TestCase
             new Response(200, ['Content-Length' => 9], $body)
         ]);
         $handler = HandlerStack::create($mock);
-        $this->app->bind('GuzzleHttp\Client', function ($app) use ($handler) {
+        $this->app->bind('GuzzleClient', function ($app) use ($handler) {
             return new Client(['handler' => $handler]);
         });
     }
@@ -51,7 +51,7 @@ class DomainTest extends TestCase
 
     public function testDomainsShow()
     {
-        $domain = factory('App\Domain')->make(['state' => 'initialized']);
+        $domain = factory('App\Domain')->make();
         $domain->save();
         $this->get(route('domains.show', ['id' => $domain->id]));
         $this->assertResponseStatus(200);
