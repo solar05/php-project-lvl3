@@ -13,40 +13,25 @@ const STATE_COMPLETED = 'completed';
 class Domain extends Model
 {
 
+    protected $state = 'initialized';
+
     protected $fillable = [
         'name',
-        'state',
         'status',
+        'state',
         'content_length',
         'body',
         'header',
         'content'
     ];
 
-    public function pending()
+    public function getState()
     {
-        if ($this->state === 'initialized' || $this->state === 'failed') {
-            $this->state = STATE_PENDING;
-        } else {
-            throw new \Exception('Transit is forbidden');
-        }
+        return $this->state;
     }
 
-    public function failed()
+    public function setState($state)
     {
-        if ($this->state === 'pending') {
-            $this->state = STATE_FAILED;
-        } else {
-            throw new \Exception('Transit is forbidden');
-        }
-    }
-
-    public function completed()
-    {
-        if ($this->state === 'pending') {
-            $this->state = STATE_COMPLETED;
-        } else {
-            throw new \Exception('Transit is forbidden');
-        }
+        $this->state = $state;
     }
 }

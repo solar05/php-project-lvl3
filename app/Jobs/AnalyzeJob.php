@@ -5,7 +5,7 @@ namespace App\Jobs;
 use Illuminate\Support\Facades\App;
 use App\Domain;
 
-class AnaliseJob extends Job
+class AnalyzeJob extends Job
 {
     public $tries = 5;
     protected $domain;
@@ -28,18 +28,20 @@ class AnaliseJob extends Job
      */
     public function handle()
     {
-        $client = App::make('GuzzleHttp\Client');
-        $request = App::makeWith('GuzzleHttp\Psr7\Request', ['method' => 'GET', 'URL' => $this->domain->name]);
+        $client = App::make('GuzzleClient');
+        $request = App::makeWith('GuzzleRequest7', ['method' => 'GET', 'URL' => $this->domain->name]);
         $id = $this->domain->id;
+        $stateMachine = App::makeWith('SM', ['domain' => $this->domain]);
         try {
-            $this->domain->pending();
+            $stateMachine->apply('send');
+            $this->domain->state = $stateMachine->getState();
             $this->domain->save();
-            $promise = $client->sendAsync($request)->then(function ($response) use ($id) {
+            $promise = $client->sendAsync($request)->then(function ($response) use ($id, $stateMachine) {
                 $this->domain->status =  $response->getStatusCode();
                 $this->domain->content_length = ($response->getHeader('Content-Length')) ?
                     implode('', $response->getHeader('Content-Length')) :
                     strlen($response->getBody());
-                $document = App::makeWith('DiDom\Document', ['document' => $response->getBody()->__ToString()]);
+                $document = App::makeWith('DiDoc', ['document' => $response->getBody()->__ToString()]);
                 $header = $document->first('h1');
                 $this->domain->header = !empty($header) ? $header->text() : 'Not provided';
                 $keywords = $document->find('meta[name=keywords]');
@@ -47,13 +49,15 @@ class AnaliseJob extends Job
                 $description = $document->find('meta[name=description]');
                 $proceededDescription = count($description) > 0 ? $description[0]->attr('content') : null;
                 $this->domain->content = "{$proceededKeywords}{$proceededDescription}";
-                $this->domain->completed();
+                $stateMachine->apply('complete');
+                $this->domain->state = $stateMachine->getState();
                 $this->domain->save();
             });
             $promise->wait();
         } catch (\Exception $error) {
             info($error);
-            $this->domain->failed();
+            $stateMachine->apply('cancel');
+            $this->domain->state = $stateMachine->getState();
             $this->domain->save();
         }
     }

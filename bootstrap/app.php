@@ -52,18 +52,44 @@ if (env('APP_DEBUG')) {
     $app->register(Barryvdh\Debugbar\LumenServiceProvider::class);
 }
 
-$app->bind('GuzzleHttp\Client', function () {
+$app->bind('GuzzleClient', function () {
     return new \GuzzleHttp\Client();
 });
 
-$app->bind('GuzzleHttp\Psr7\Request', function ($app, $parameters) {
+$app->bind('GuzzleRequest7', function ($app, $parameters) {
     return new \GuzzleHttp\Psr7\Request($parameters['method'], $parameters['URL']);
 });
 
-$app->bind('DiDom\Document', function ($app, $parameters) {
+$app->bind('DiDoc', function ($app, $parameters) {
     return new \DiDom\Document($parameters['document']);
 });
 
+$app->bind('SM', function ($app, $parameters) {
+    return new SM\StateMachine\StateMachine($parameters['domain'], config('FSM_CONFIG'));
+});
+
+
+config(['FSM_CONFIG' => array(
+    'graph'         => 'domainGraph',
+    'property_path' => 'state',
+    'states'        => array(
+        'initialized',
+        'pending',
+        'completed',
+        'cancelled'),
+    'transitions' => array(
+        'send' => array(
+            'from' => array('initialized'),
+            'to'   => 'pending'
+        ),
+        'complete' => array(
+            'from' => array('cancelled', 'pending'),
+            'to'   => 'completed'
+        ),
+        'cancel' => array(
+            'from' => array('pending'),
+            'to'   => 'cancelled'
+        )))]);
 /*
 |--------------------------------------------------------------------------
 | Register Middleware

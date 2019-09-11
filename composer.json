@@ -9,7 +9,8 @@
         "csanquer/pdo-service-provider": "^1.0",
         "guzzlehttp/guzzle": "^6.3",
         "imangazaliev/didom": "^1.14",
-        "laravel/lumen-framework": "5.8.*"
+        "laravel/lumen-framework": "5.8.*",
+        "winzou/state-machine": "^0.3.3"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.2",
