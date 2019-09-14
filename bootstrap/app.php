@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__.'/../vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 (new Laravel\Lumen\Bootstrap\LoadEnvironmentVariables(
     dirname(__DIR__)
@@ -69,27 +69,27 @@ $app->bind('SM', function ($app, $parameters) {
 });
 
 
-config(['FSM_CONFIG' => array(
+config(['FSM_CONFIG' => [
     'graph'         => 'domainGraph',
     'property_path' => 'state',
-    'states'        => array(
+    'states'        => [
         'initialized',
         'pending',
         'completed',
-        'cancelled'),
-    'transitions' => array(
-        'send' => array(
-            'from' => array('initialized'),
+        'cancelled'],
+    'transitions' => [
+        'send' => [
+            'from' => ['initialized'],
             'to'   => 'pending'
-        ),
-        'complete' => array(
-            'from' => array('cancelled', 'pending'),
+        ],
+        'complete' => [
+            'from' => ['cancelled', 'pending'],
             'to'   => 'completed'
-        ),
-        'cancel' => array(
-            'from' => array('pending'),
+        ],
+        'cancel' => [
+            'from' => ['pending'],
             'to'   => 'cancelled'
-        )))]);
+        ]]]]);
 /*
 |--------------------------------------------------------------------------
 | Register Middleware
@@ -138,7 +138,7 @@ config(['FSM_CONFIG' => array(
 $app->router->group([
     'namespace' => 'App\Http\Controllers',
 ], function ($router) {
-    require __DIR__.'/../routes/web.php';
+    require __DIR__ . '/../routes/web.php';
 });
 
 return $app;
